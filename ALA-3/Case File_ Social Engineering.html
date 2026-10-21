@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Case File: Social Engineering</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#14171f; --panel:#1c212c; --panel2:#20263280; --line:#333c4d;
+  --ink:#eef0ea; --muted:#8b93a3; --red:#d6483f; --amber:#e3a640; --teal:#4f9e8f;
+  color-scheme: dark;
+}
+*{box-sizing:border-box;}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:'Spectral',Georgia,serif;
+  padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px);
+  background-size: 100% 48px;
+  background-attachment:local;
+}
+.mono{font-family:'IBM Plex Mono',monospace;}
+.wrap{max-width:900px; margin:0 auto; padding:3rem 1.5rem 4rem;}
+
+/* header */
+.filehead{border:1px solid var(--line); padding:1.75rem 1.5rem; position:relative; background:var(--panel); margin-bottom:3rem;}
+.stamp{
+  position:absolute; top:1.25rem; right:1.5rem; border:3px solid var(--red); color:var(--red);
+  font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:.7rem; letter-spacing:.12em;
+  padding:.3rem .6rem; transform:rotate(6deg); opacity:.85;
+}
+.tag{font-family:'IBM Plex Mono',monospace; color:var(--teal); font-size:.75rem; letter-spacing:.08em; margin-bottom:.6rem;}
+.filehead h1{font-size:2rem; margin:0 0 .5rem; font-weight:700; max-width:28ch; line-height:1.15;}
+.filehead p{color:var(--muted); font-size:1.05rem; max-width:48ch; margin:0; font-style:italic;}
+
+/* section heading */
+.sechead{display:flex; align-items:baseline; gap:.75rem; margin:0 0 1.25rem;}
+.sechead .num{font-family:'IBM Plex Mono',monospace; color:var(--amber); font-size:.9rem;}
+.sechead h2{font-size:1.4rem; margin:0; font-weight:600;}
+section{margin-bottom:3.5rem;}
+
+/* lifecycle */
+.lifecycle{display:flex; gap:0; position:relative; overflow-x:auto; padding-bottom:.5rem;}
+.lstep{flex:1 1 0; min-width:140px; position:relative; padding:0 .75rem;}
+.lstep:not(:last-child)::after{
+  content:""; position:absolute; top:22px; right:-10%; width:20%; height:1px; background:var(--line);
+}
+.licon{width:44px; height:44px; border:1px solid var(--line); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem; background:var(--panel); position:relative; z-index:1;}
+.lstep .lnum{font-family:'IBM Plex Mono',monospace; color:var(--amber); font-size:.7rem; margin:.6rem 0 .2rem;}
+.lstep h3{font-size:.95rem; margin:.1rem 0 .3rem;}
+.lstep p{font-size:.8rem; color:var(--muted); margin:0; line-height:1.4;}
+
+/* evidence cards */
+.evidence{display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem;}
+@media(max-width:720px){.evidence{grid-template-columns:1fr;} .lifecycle{flex-direction:column;} .lstep:not(:last-child)::after{display:none;}}
+.ecard{
+  background:var(--panel); border:1px solid var(--line); padding:1.25rem 1.1rem 1.1rem; position:relative;
+  clip-path:polygon(0 0, 100% 0, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+}
+.ecard .etab{font-family:'IBM Plex Mono',monospace; font-size:.65rem; letter-spacing:.1em; color:var(--bg); background:var(--accent-c,var(--amber)); display:inline-block; padding:.15rem .5rem; margin-bottom:.75rem;}
+.ecard h3{margin:.2rem 0 .5rem; font-size:1.15rem;}
+.ecard p{color:var(--muted); font-size:.88rem; line-height:1.5; margin:0 0 .85rem;}
+.ecard .flow{font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:var(--ink); border-top:1px dashed var(--line); padding-top:.7rem;}
+.ecard.phish{--accent-c:var(--teal);}
+.ecard.pretext{--accent-c:var(--amber);}
+.ecard.bait{--accent-c:var(--red);}
+
+/* case studies */
+.case{
+  display:grid; grid-template-columns:120px 1fr; gap:1.25rem; border-top:1px solid var(--line);
+  padding:1.5rem 0; align-items:start;
+}
+.case:last-child{border-bottom:1px solid var(--line);}
+.case .stat{font-family:'IBM Plex Mono',monospace; font-size:2.4rem; font-weight:700; line-height:1;}
+.case .statlabel{font-size:.7rem; color:var(--muted); font-family:'IBM Plex Mono',monospace; margin-top:.3rem;}
+.case .label{font-family:'IBM Plex Mono',monospace; font-size:.7rem; letter-spacing:.1em; color:var(--muted); margin-bottom:.3rem;}
+.case h3{margin:0 0 .5rem; font-size:1.15rem;}
+.case p{color:var(--ink); font-size:.92rem; line-height:1.55; margin:0 0 .6rem; max-width:60ch;}
+.case .fix{font-size:.85rem; border-left:3px solid var(--amber); padding-left:.7rem; color:var(--muted);}
+.case .fix b{color:var(--ink); font-weight:600;}
+
+/* prevention */
+.manual{display:grid; grid-template-columns:1fr 1fr; gap:0 2rem;}
+@media(max-width:640px){.manual{grid-template-columns:1fr;}}
+.mitem{display:flex; gap:.85rem; padding:.9rem 0; border-top:1px solid var(--line);}
+.mitem:nth-last-child(-n+2){border-bottom:1px solid var(--line);}
+.mbox{width:18px; height:18px; border:1px solid var(--amber); flex-shrink:0; margin-top:.25rem;}
+.mitem h4{margin:0 0 .25rem; font-size:1rem; font-weight:600;}
+.mitem p{margin:0; color:var(--muted); font-size:.85rem; line-height:1.5;}
+
+footer{text-align:center; color:var(--muted); font-size:.78rem; font-family:'IBM Plex Mono',monospace; margin-top:2rem; padding-top:1.5rem; border-top:1px dashed var(--line);}
+
+#decrypt{
+  position:fixed; inset:0; background:var(--bg); z-index:999; display:flex; align-items:center; justify-content:center;
+  font-family:'IBM Plex Mono',monospace; transition:opacity .5s ease; padding:1.5rem;
+}
+#decrypt.hide{opacity:0; pointer-events:none;}
+.dbox{width:100%; max-width:440px; color:var(--teal); font-size:.8rem; line-height:1.9;}
+.dbox .dline{opacity:0; white-space:pre;}
+.dbox .dline.show{opacity:1;}
+.dbox .cursor{display:inline-block; width:7px; height:1em; background:var(--teal); vertical-align:text-bottom; animation:blink 1s step-end infinite;}
+@keyframes blink{50%{opacity:0;}}
+.pbar{height:3px; background:var(--line); margin:.9rem 0; overflow:hidden;}
+.pbar i{display:block; height:100%; width:0%; background:var(--amber); transition:width .25s linear;}
+.scramble{display:inline-block;}
+</style>
+</head>
+<body>
+<div id="decrypt"><div class="dbox">
+  <div class="dline" id="d1">&gt; ACCESSING RESTRICTED ARCHIVE...</div>
+  <div class="dline" id="d2">&gt; DECRYPTING FILE: SOCIAL-ENGINEERING.CASE</div>
+  <div class="pbar"><i id="pbarfill"></i></div>
+  <div class="dline" id="d3">&gt; <span id="pct">0</span>% ... <span id="status"></span><span class="cursor"></span></div>
+</div></div>
+<div class="wrap">
+
+  <div class="filehead">
+    <div class="stamp">CASE FILE</div>
+    <div class="tag">// SECURITY AWARENESS BRIEFING</div>
+    <h1><span class="scramble" id="titleScramble">Social Engineering Attacks &amp; Major Security Breaches</span></h1>
+    <p>The biggest breaches rarely start with code. They start with a convincing lie.</p>
+  </div>
+
+  <section>
+    <div class="sechead"><span class="num mono">01</span><h2>The Attack Lifecycle</h2></div>
+    <div class="lifecycle">
+      <div class="lstep"><div class="licon">🔍</div><div class="lnum">STEP 1</div><h3>Research</h3><p>Scout the target's name, role, and habits.</p></div>
+      <div class="lstep"><div class="licon">☎</div><div class="lnum">STEP 2</div><h3>Contact</h3><p>Reach out by email, phone, or in person.</p></div>
+      <div class="lstep"><div class="licon">🤝</div><div class="lnum">STEP 3</div><h3>Build Trust</h3><p>Impersonate someone familiar or in charge.</p></div>
+      <div class="lstep"><div class="licon">🔓</div><div class="lnum">STEP 4</div><h3>Exploit</h3><p>Get a click, a password, or a plugged-in drive.</p></div>
+      <div class="lstep"><div class="licon">🧹</div><div class="lnum">STEP 5</div><h3>Cover Tracks</h3><p>Delete logs, keep access quiet.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sechead"><span class="num mono">02</span><h2>Three Ways In</h2></div>
+    <div class="evidence">
+      <div class="ecard phish">
+        <span class="etab">EXHIBIT A</span>
+        <h3>✉ Phishing</h3>
+        <p>A fake message impersonates a trusted sender to harvest credentials or spread malware.</p>
+        <div class="flow">Email lure → Fake login page → Credentials stolen</div>
+      </div>
+      <div class="ecard pretext">
+        <span class="etab">EXHIBIT B</span>
+        <h3>☎ Pretexting</h3>
+        <p>An attacker invents a believable scenario — "IT support," "a vendor" — to extract information.</p>
+        <div class="flow">Fabricated role → Earned trust → Data handed over</div>
+      </div>
+      <div class="ecard bait">
+        <span class="etab">EXHIBIT C</span>
+        <h3>💾 Baiting</h3>
+        <p>A tempting physical or digital item — a USB drive, a free download — hides malware inside.</p>
+        <div class="flow">Tempting item → Curiosity → Malware runs</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sechead"><span class="num mono">03</span><h2>When It Worked: Real Breaches</h2></div>
+
+    <div class="case">
+      <div><div class="stat" style="color:var(--teal)">40M</div><div class="statlabel">CARD NUMBERS STOLEN</div></div>
+      <div>
+        <div class="label">PHISHING · TARGET, 2013</div>
+        <h3>Vendor credentials, nationwide checkout malware</h3>
+        <p>Attackers phished Target's HVAC vendor for network credentials, then installed malware on checkout systems nationwide.</p>
+        <div class="fix"><b>Could've been stopped:</b> Isolate vendor access from payment networks.</div>
+      </div>
+    </div>
+
+    <div class="case">
+      <div><div class="stat" style="color:var(--amber)">130</div><div class="statlabel">ACCOUNTS HIJACKED</div></div>
+      <div>
+        <div class="label">PRETEXTING · TWITTER, 2020</div>
+        <h3>Fake IT support, verified accounts seized</h3>
+        <p>Callers posing as IT support tricked employees into a fake VPN login page, harvesting credentials used to seize verified accounts.</p>
+        <div class="fix"><b>Could've been stopped:</b> Verify IT requests through a separate, known channel.</div>
+      </div>
+    </div>
+
+    <div class="case">
+      <div><div class="stat" style="color:var(--red)">14</div><div class="statlabel">MONTHS TO ERADICATE</div></div>
+      <div>
+        <div class="label">BAITING · BUCKSHOT YANKEE, 2008</div>
+        <h3>A parking-lot USB drive, a classified network</h3>
+        <p>A malware-laden USB drive left in a parking lot was plugged into a military laptop, letting a worm spread across classified networks.</p>
+        <div class="fix"><b>Could've been stopped:</b> Ban unknown removable media; disable autorun.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sechead"><span class="num mono">04</span><h2>Building Human Firewalls</h2></div>
+    <p style="color:var(--muted); margin-top:-.75rem; margin-bottom:1.5rem; font-style:italic;">Technology stops some attacks. Habits stop the rest.</p>
+    <div class="manual">
+      <div class="mitem"><div class="mbox"></div><div><h4>Verify independently</h4><p>Call back on a number you already know — never one given by the requester.</p></div></div>
+      <div class="mitem"><div class="mbox"></div><div><h4>Pause before clicking</h4><p>Check the sender address and link destination before acting.</p></div></div>
+      <div class="mitem"><div class="mbox"></div><div><h4>Limit public details</h4><p>Less personal info online means fewer believable pretexts.</p></div></div>
+      <div class="mitem"><div class="mbox"></div><div><h4>Segment the network</h4><p>Keep vendor and guest access away from critical systems.</p></div></div>
+      <div class="mitem"><div class="mbox"></div><div><h4>Train and simulate</h4><p>Regular phishing drills build instinct, not just awareness.</p></div></div>
+      <div class="mitem"><div class="mbox"></div><div><h4>Report immediately</h4><p>Fast reporting shrinks the time attackers have to act.</p></div></div>
+    </div>
+  </section>
+
+  <footer>FILE STATUS: CLOSED — PREVENTABLE IN ALL THREE CASES</footer>
+</div>
+
+<script>
+(function(){
+  var d1=document.getElementById('d1'), d2=document.getElementById('d2'), d3=document.getElementById('d3');
+  var fill=document.getElementById('pbarfill'), pct=document.getElementById('pct'), status=document.getElementById('status');
+  var overlay=document.getElementById('decrypt');
+  setTimeout(function(){d1.classList.add('show');},150);
+  setTimeout(function(){d2.classList.add('show');},650);
+  setTimeout(function(){
+    d3.classList.add('show');
+    var p=0;
+    var iv=setInterval(function(){
+      p+=Math.ceil(Math.random()*18);
+      if(p>=100){p=100; clearInterval(iv); status.textContent='ACCESS GRANTED';
+        setTimeout(function(){
+          overlay.classList.add('hide');
+          scrambleReveal();
+          setTimeout(function(){overlay.remove();},600);
+        },500);
+      }
+      fill.style.width=p+'%'; pct.textContent=p;
+    },110);
+  },1100);
+
+  function scrambleReveal(){
+    var el=document.getElementById('titleScramble');
+    var finalText=el.textContent;
+    var chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ#%&$@*0123456789';
+    var frame=0, totalFrames=18;
+    var iv=setInterval(function(){
+      frame++;
+      var revealCount=Math.floor((frame/totalFrames)*finalText.length);
+      var out='';
+      for(var i=0;i<finalText.length;i++){
+        if(finalText[i]===' '){out+=' '; continue;}
+        if(i<revealCount) out+=finalText[i];
+        else out+=chars[Math.floor(Math.random()*chars.length)];
+      }
+      el.textContent=out;
+      if(frame>=totalFrames){clearInterval(iv); el.textContent=finalText;}
+    },35);
+  }
+})();
+</script>
+</body>
+</html>
